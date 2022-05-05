@@ -1,0 +1,80 @@
+
+[NEAT]
+fitness_criterion     = max # Definir se o critério é de maximização ou minimização
+fitness_threshold     = 1000 # Limitador para encerrar o jogo
+pop_size              = 100 # Tamanho da população de cada geração
+reset_on_extinction   = False # Estando True, toda vez que o algoritimo não encontra solução ele recomeça do zero, estando False, ele dá uma mensagem de erro informando que não está encontrando solução.
+
+[DefaultGenome]
+# node activation options
+activation_default      = tanh # Formula de ativação (Tangente Hiperbólica)
+activation_mutate_rate  = 0.0 # Habilitar alguma mutação
+activation_options      = tanh # Alternativa de funções de ativação, como é sempre TANH, repete o parâmetro
+
+# node aggregation options
+aggregation_default     = sum # Como o algoritmo vai calcular o resultado do nó seguinte, nesse caso, somando o resultado dos anteriores
+aggregation_mutate_rate = 0.0 # Escolhido zero pois ele não vai mudar.
+aggregation_options     = sum # Alternativas de avaliação de agregação
+
+# node bias options
+bias_init_mean          = 0.0 # Média bias
+bias_init_stdev         = 1.0 # Desvio Padrão bias
+bias_max_value          = 30.0 # Valor máximo do bias
+bias_min_value          = -30.0 # Valor mínimo do bias
+bias_mutate_power       = 0.5 # Multiplicador da mutação (Se a mutação for de +10, multiplica por 0,5 e da como resultado 5.
+bias_mutate_rate        = 0.7 # Taxa de mutação de probalidade de mutação
+bias_replace_rate       = 0.1 # Probabilidade de criar um bias com um número aleatório
+
+# genome compatibility options
+compatibility_disjoint_coefficient = 1.0 # Qual o nível de semelhança de objetos de cada espécie
+compatibility_weight_coefficient   = 0.5
+
+# connection add/remove rates
+conn_add_prob           = 0.5 # Probabilidade de adicionar conecções entre os nós
+conn_delete_prob        = 0.5 # Probabilidade de deletar conecções entre os nós
+
+# connection enable options
+enabled_default         = True # Se True, todas as conexões serão necessariamente ativas, se False, poderá ter alguma conecção inativa.
+enabled_mutate_rate     = 0.01 # Probabilidade de mutação nessa configuração
+
+feed_forward            = True # Alimentando da esquerda pra direita
+initial_connection      = full # Todos os nós de imput estarão conectados na próxima camada
+
+# node add/remove rates
+node_add_prob           = 0.2 # Probabilidade de adicionar os nós
+node_delete_prob        = 0.2 # Probabilidade de excluir os nós
+
+# network parameters
+num_hidden              = 0 # Quantos nós intermediários inicia a rede
+num_inputs              = 3 # Quantos inputs
+num_outputs             = 1  #Quantos Outputs
+
+# node response options # Valor que o vai ser multiplicado em cada nó antes de somar o bias / Mesma config do bias
+response_init_mean      = 1.0
+response_init_stdev     = 0.0
+response_max_value      = 30.0
+response_min_value      = -30.0
+response_mutate_power   = 0.0
+response_mutate_rate    = 0.0
+response_replace_rate   = 0.0
+
+# connection weight options # Pesos das conecções / Mesma config do bias
+weight_init_mean        = 0.0
+weight_init_stdev       = 1.0
+weight_max_value        = 30
+weight_min_value        = -30
+weight_mutate_power     = 0.5
+weight_mutate_rate      = 0.8
+weight_replace_rate     = 0.1
+
+[DefaultSpeciesSet]
+compatibility_threshold = 3.0 # Nível de compatibilidade para classificar como mesma especie.
+
+[DefaultStagnation]
+species_fitness_func = max # Critério de maximização ou minimização dos pontos dos das especies
+max_stagnation       = 20 # Número máximo de gerações sem evoluir, caso chegue a esse ponto, o algorítmo exclui essa especie
+species_elitism      = 2 # Elitismo: para não matar toda a população, ele sempre vai deixar pelo menos 2 especies, para não começar do zero
+
+[DefaultReproduction]
+elitism            = 2 # Elitismo: uantos individuos vai passar para a próxima geração sem sofrer mutação
+survival_threshold = 0.2 # Qual o percentual da especie que pode passar para a próxima geração
