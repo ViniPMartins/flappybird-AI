@@ -56,7 +56,7 @@ class Passaro:
     def mover(self):
         # A cada iteração acrescenta 1 no tempo e recalcula a formula do deslocamento em parabola
         self.tempo += 1
-        deslocamento = 1.5 * (self.tempo ** 2) + self.velocidade * self.tempo
+        deslocamento = 1.6 * (self.tempo ** 2) + self.velocidade * self.tempo
 
         # Primeiro, coloca um limite para o deslocamento quando o passaro estiver caindo, sendo no máximo 16
         if deslocamento > 16:
@@ -246,10 +246,10 @@ def desenhar_tela(tela, passaros, canos, chao, pontos):
 
 
 def main(genomas, config):  # fitness function
-    global geracao
-    geracao += 1
 
     if ativar_ai:
+        global geracao
+        geracao += 1
         lista_genomas = []
         redes = []
         passaros = []
@@ -325,8 +325,10 @@ def main(genomas, config):  # fitness function
         if adicionar_cano:
             pontos += 1
             canos.append(Cano(600))
-            for genoma in lista_genomas:
-                genoma.fitness += 5
+            if ativar_ai:
+                for genoma in lista_genomas:
+                    genoma.fitness += 5
+
         for cano in remover_canos:
             canos.remove(cano)
 
@@ -345,18 +347,18 @@ def main(genomas, config):  # fitness function
 
 
 def rodar(caminho_config):
-    config = neat.config.Config(neat.DefaultGenome,
-                                neat.DefaultReproduction,
-                                neat.DefaultSpeciesSet,
-                                neat.DefaultStagnation,
-                                caminho_config)
-
-    populacao = neat.Population(config)
-    populacao.add_reporter(neat.StdOutReporter(True))
-    populacao.add_reporter(neat.StatisticsReporter())
-
     # Passar Fitness function e o número de gerações para rodar
     if ativar_ai:
+        config = neat.config.Config(neat.DefaultGenome,
+                                    neat.DefaultReproduction,
+                                    neat.DefaultSpeciesSet,
+                                    neat.DefaultStagnation,
+                                    caminho_config)
+
+        populacao = neat.Population(config)
+        populacao.add_reporter(neat.StdOutReporter(True))
+        populacao.add_reporter(neat.StatisticsReporter())
+
         populacao.run(main, 50)
     else:
         main(None, None)
