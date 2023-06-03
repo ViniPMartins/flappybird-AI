@@ -293,14 +293,15 @@ def main(genomas, config):  # fitness function
         for i, passaro in enumerate(passaros):
             passaro.mover()
             # aumentar o fitness
-            lista_genomas[i].fitness += 0.1
-            # dar informações para rede neural
-            output = redes[i].activate((passaro.y,
-                                        abs(passaro.y - canos[indice_cano].altura),
-                                        abs(passaro.y - canos[
-                                            indice_cano].pos_base)))  # Output entre -1 e 1. Se Output > 0,5, pular.
-            if output[0] > 0.5:
-                passaro.pular()
+            if ativar_ai:
+                lista_genomas[i].fitness += 0.1
+                # dar informações para rede neural
+                output = redes[i].activate((passaro.y,
+                                            abs(passaro.y - canos[indice_cano].altura),
+                                            abs(passaro.y - canos[
+                                                indice_cano].pos_base)))  # Output entre -1 e 1. Se Output > 0,5, pular.
+                if output[0] > 0.5:
+                    passaro.pular()
 
         chao.mover()
 
