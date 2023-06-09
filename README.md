@@ -4,7 +4,7 @@
 Este projeto tem como objetivo de uma implementação de uma rede neural para aprender a jogar o FlappyBird.
 Foi usado como inspiração e base para esse projeto os vídeos dos canais universo programado e hashtag programação.
 
-##Arquivos principais
+## Arquivos principais
 - **FlappyBird.py** - Este é o principal arquivo que contém a implementação do jogo. Caso queira rodar o jogo, basta rodar este arquivo.
 - **Config_rede.txt** - Neste arquivo está a configutação usada para treinamento da rede neural.
 
