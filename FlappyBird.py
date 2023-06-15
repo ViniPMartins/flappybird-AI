@@ -96,7 +96,7 @@ def main_ai(genomas, config):
 
         desenhar_tela(tela, tela_largura, passaros, canos, chao, pontos, ativar_ai, geracao)
 
-def main(genomas, config):  # fitness function
+def main():  # fitness function
     passaros = [Passaro(230, 350)]
 
     chao = Chao(730)
@@ -174,7 +174,7 @@ def rodar(caminho_config):
 
         populacao.run(main_ai, 50)
     else:
-        main(None, None)
+        main()
 
 
 if __name__ == '__main__':
