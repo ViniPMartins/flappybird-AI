@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.metrics import accuracy_score
-from rede_neural import create_model
+from AI import create_model
 
 def create_first_generation(num_population):
     population = np.empty(num_population, dtype=object)
