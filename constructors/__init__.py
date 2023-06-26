@@ -1,5 +1,5 @@
-from constructors.classes import Cano, Passaro, Chao
-from constructors.tela import desenhar_tela
+from constructors._classes import Cano, Passaro, Chao
+from constructors._tela import desenhar_tela
 
 __all__ = [
     "Cano", 
