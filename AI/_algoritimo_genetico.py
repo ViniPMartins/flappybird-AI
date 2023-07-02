@@ -1,15 +1,15 @@
 import numpy as np
 from sklearn.metrics import accuracy_score
-from AI import create_model
+from AI import create_weights
 
 def create_first_generation(num_population):
     print("Criando População. Quantidade: ", num_population)
     population = np.empty(num_population, dtype=object)
 
     for i in range(num_population):
-        model = create_model(3)
+        weights = create_weights(3)
         initial_score = 0
-        population[i] = [i, initial_score, model]
+        population[i] = [i, initial_score, weights]
         
     return population
    
@@ -57,8 +57,8 @@ def new_generation(scores):
     
     parents = population_sorted[:2]
     
-    weights_parent_1 = parents[0][2].get_weights()
-    weights_parent_2 = parents[1][2].get_weights()
+    weights_parent_1 = parents[0][2]
+    weights_parent_2 = parents[1][2]
     num_par_offsprings = int((len(scores)-2)/2)
     
     for i in range(num_par_offsprings):
@@ -68,8 +68,8 @@ def new_generation(scores):
         offspring_1_mutation = mutation(offspring_1)
         offspring_2_mutation = mutation(offspring_2)
         
-        population_sorted[i+2][2].set_weights(offspring_1_mutation)
-        population_sorted[i+2+num_par_offsprings][2].set_weights(offspring_2_mutation)
+        population_sorted[i+2][2] = offspring_1_mutation
+        population_sorted[i+2+num_par_offsprings][2] = offspring_2_mutation
         
     offsprings = population_sorted[2:]
     

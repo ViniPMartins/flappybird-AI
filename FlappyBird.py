@@ -26,6 +26,8 @@ def main():
     pontos = 0
     relogio = pygame.time.Clock()
 
+    model = create_model(3)
+
     global geracao
     geracao += 1
     rodando = True
@@ -59,8 +61,13 @@ def main():
             population[i][1] += fitness
 
             #Realizando previsão com a rede neural do passaro
-            dados = tf.convert_to_tensor([[passaro.y, abs(passaro.y - canos[indice_cano].altura), abs(passaro.y - canos[indice_cano].pos_base)]])
-            prediction = predict_function(population[i][2], dados)
+            dados = tf.convert_to_tensor([[passaro.y, 
+                                           abs(passaro.y - canos[indice_cano].altura), 
+                                           abs(passaro.y - canos[indice_cano].pos_base)]])
+            
+            weights = population[i][2]
+            model.set_weights(weights)
+            prediction = predict_function(model, dados)
             if prediction.numpy()[0][0] > 0.6:
                 passaro.pular()
 
