@@ -132,7 +132,7 @@ class Cano:
         # é definido um valor aleatório para a altura dos canos
         self.altura = random.randrange(50, 450)
         # O cano topo ficara posicionado na altura aleatória e o cano base vai ficar na altura mais a distancia de
-        # separaçõ entre os canos
+        # separação entre os canos
         self.pos_topo = self.altura - self.cano_topo.get_height()
         self.pos_base = self.altura + self.distancia
 
@@ -144,8 +144,8 @@ class Cano:
             self.vel_cano = 3
 
         # Movimetno vertical
-        self.pos_topo += self.vel_cano
-        self.pos_base += self.vel_cano
+        #self.pos_topo += self.vel_cano
+        #self.pos_base += self.vel_cano
         # Movimento Horizontal
         self.x -= self.velocidade
 

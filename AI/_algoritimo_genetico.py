@@ -3,24 +3,15 @@ from sklearn.metrics import accuracy_score
 from AI import create_model
 
 def create_first_generation(num_population):
+    print("Criando População. Quantidade: ", num_population)
     population = np.empty(num_population, dtype=object)
 
     for i in range(num_population):
         model = create_model(3)
-        population[i] = (i, model)
+        initial_score = 0
+        population[i] = [i, initial_score, model]
         
     return population
-
-def calculate_scores(population, input_data):
-    scores = np.empty(len(population), dtype=object)
-
-    for idx, model in population:
-        predictions = model.predict(input_data, verbose=0)
-        predictions_binary = [1 if x > 0.5 else 0 for x in predictions]
-        score = accuracy_score(y, predictions_binary)
-        scores[idx] = np.array([idx, score, model])
-        
-    return scores
    
 def crossover(weights_parents_1, weights_parents_2):
     
@@ -82,5 +73,5 @@ def new_generation(scores):
         
     offsprings = population_sorted[2:]
     
-    new_generation = [(x[0], x[2]) for x in parents + offsprings]
+    new_generation = parents + offsprings
     return new_generation
