@@ -110,7 +110,7 @@ class Passaro:
 class Cano:
     # Definições gerais da classe cano
     # Distancia entre o cano de cima e o cano de baixo
-    distancia = 200
+    distancia = 250
     # Velocidade horizontal do cano
     velocidade = 5
     # Velocidade vertival do cano
@@ -144,8 +144,8 @@ class Cano:
             self.vel_cano = 3
 
         # Movimetno vertical
-        self.pos_topo += self.vel_cano
-        self.pos_base += self.vel_cano
+        #self.pos_topo += self.vel_cano
+        #self.pos_base += self.vel_cano
         # Movimento Horizontal
         self.x -= self.velocidade
 

@@ -68,7 +68,7 @@ def main():
             weights = population[i][2]
             model.set_weights(weights)
             prediction = predict_function(model, dados)
-            if prediction.numpy()[0][0] > 0.6:
+            if prediction.numpy()[0][0] > 0.75:
                 passaro.pular()
 
         chao.mover()
