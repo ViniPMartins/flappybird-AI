@@ -2,7 +2,7 @@ import os
 import tensorflow as tf
 import pygame
 from constructors import Passaro, Cano, Chao, desenhar_tela
-from AI import create_first_generation, new_generation, create_model
+from AI import create_new_population, new_generation, create_model
 
 # Definições gerais do jogo como tamanho da tela e imagens usadas
 tela_altura = 800
@@ -12,6 +12,8 @@ tela_largura = 500
 num_population = 50
 num_geracoes = 50
 geracao = 0
+
+input_shape = 2
 
 @tf.function(reduce_retracing=True)
 def predict_function(model, input_data):
@@ -26,7 +28,7 @@ def main():
     pontos = 0
     relogio = pygame.time.Clock()
 
-    model = create_model(3)
+    model = create_model(input_shape)
 
     global geracao
     geracao += 1
@@ -39,10 +41,10 @@ def main():
                 rodando = False
                 pygame.quit()
                 quit()
-            if evento.type == pygame.KEYDOWN:
-                if evento.key == pygame.K_SPACE:
-                    for passaro in passaros:
-                        passaro.pular()
+            #if evento.type == pygame.KEYDOWN:
+             #   if evento.key == pygame.K_SPACE:
+              #      for passaro in passaros:
+               #         passaro.pular()
 
         indice_cano = 0                
         if len(passaros) > 0:
@@ -60,15 +62,21 @@ def main():
             fitness = 1
             population[i][1] += fitness
 
+            x1 = abs(passaro.y / tela_altura)
+            x2 = abs((passaro.y - (canos[indice_cano].altura - canos[indice_cano].distancia / 2)) / tela_altura)
+
             #Realizando previsão com a rede neural do passaro
-            dados = tf.convert_to_tensor([[passaro.y, 
-                                           abs(passaro.y - canos[indice_cano].altura), 
-                                           abs(passaro.y - canos[indice_cano].pos_base)]])
+            #dados = tf.convert_to_tensor([[passaro.y, 
+            #                               abs(passaro.y - canos[indice_cano].altura), 
+            #                               abs(passaro.y - canos[indice_cano].pos_base)]])
+
+            dados = tf.convert_to_tensor([[x1, x2]])
             
             weights = population[i][2]
             model.set_weights(weights)
             prediction = predict_function(model, dados)
-            if prediction.numpy()[0][0] > 0.75:
+
+            if prediction.numpy()[0][0] > 0.7:
                 passaro.pular()
 
         chao.mover()
@@ -103,10 +111,18 @@ def main():
 
 def calcula_geracoes():
     global population 
-    population = create_first_generation(num_population)
+    population = create_new_population(num_population, input_shape)
 
     for g in range(num_geracoes):
         main()
+        print("Geração: ", g)
+        print("Melhores Individuos: ")
+
+        show_individuos = 2
+
+        for i in range(show_individuos):
+            print(sorted(population, key=lambda x: x[1], reverse=True)[i][:2])
+
         population = new_generation(population)
 
 if __name__ == '__main__':

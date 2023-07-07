@@ -2,14 +2,13 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 from AI import create_weights
 
-def create_first_generation(num_population):
-    print("Criando População. Quantidade: ", num_population)
-    population = np.empty(num_population, dtype=object)
+def create_new_population(num_population, input_shape):
+    population = []
 
     for i in range(num_population):
-        weights = create_weights(3)
+        weights = create_weights(input_shape)
         initial_score = 0
-        population[i] = [i, initial_score, weights]
+        population.append([i, initial_score, weights])
         
     return population
    
@@ -52,14 +51,24 @@ def mutation(weights, mutation_rate = 0.1):
                         
     return weights
 
+def reset_scores(population):
+
+    for i in range(len(population)):
+        population[i][1] = 0
+
+    return population
+
 def new_generation(scores):
     population_sorted = sorted(scores, key=lambda column: column[1], reverse=True)
     
     parents = population_sorted[:2]
+    new_individuos = create_new_population(2, 2)
+
+    alredy_individuos = len(parents) + len(new_individuos)
     
     weights_parent_1 = parents[0][2]
     weights_parent_2 = parents[1][2]
-    num_par_offsprings = int((len(scores)-2)/2)
+    num_par_offsprings = int((len(scores)-alredy_individuos)/2)
     
     for i in range(num_par_offsprings):
     
@@ -68,10 +77,13 @@ def new_generation(scores):
         offspring_1_mutation = mutation(offspring_1)
         offspring_2_mutation = mutation(offspring_2)
         
-        population_sorted[i+2][2] = offspring_1_mutation
-        population_sorted[i+2+num_par_offsprings][2] = offspring_2_mutation
+        population_sorted[i+alredy_individuos][2] = offspring_1_mutation
+        population_sorted[i+alredy_individuos+num_par_offsprings][2] = offspring_2_mutation
         
-    offsprings = population_sorted[2:]
+    offsprings = population_sorted[alredy_individuos:]
     
-    new_generation = parents + offsprings
-    return new_generation
+    new_generation = parents + new_individuos + offsprings
+
+    new_generation_reseted_scores = reset_scores(new_generation)
+
+    return new_generation_reseted_scores
