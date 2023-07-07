@@ -4,7 +4,7 @@ import pygame
 from constructors import Passaro, Cano, Chao, desenhar_tela
 
 # Variaveis para ativar e desativar IA e contar geração
-ativar_ai = False
+ativar_ai = True
 geracao = 0
 
 # Definições gerais do jogo como tamanho da tela e imagens usadas
