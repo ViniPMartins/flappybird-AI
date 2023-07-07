@@ -4,7 +4,7 @@ from keras.initializers import RandomNormal
 
 def create_model(input_shape):
     model = Sequential([
-        Dense(3, input_shape=(input_shape,), activation='relu', bias_initializer=RandomNormal(mean=0.0, stddev=1.0)),
+        Dense(2, input_shape=(input_shape,), activation='relu', bias_initializer=RandomNormal(mean=0.0, stddev=1.0)),
         Dense(1, activation='relu', bias_initializer=RandomNormal(mean=0.0, stddev=1.0))
     ])
 
