@@ -58,11 +58,11 @@ def reset_scores(population):
 
     return population
 
-def new_generation(scores):
+def new_generation(scores, input_shape):
     population_sorted = sorted(scores, key=lambda column: column[1], reverse=True)
     
     parents = population_sorted[:2]
-    new_individuos = create_new_population(2, 2)
+    new_individuos = create_new_population(2, input_shape)
 
     alredy_individuos = len(parents) + len(new_individuos)
     

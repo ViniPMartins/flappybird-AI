@@ -9,11 +9,11 @@ tela_altura = 800
 tela_largura = 500
 
 #Configuração da Rede neural e Algoritimo genético
-num_population = 50
+num_population = 10
 num_geracoes = 50
 geracao = 0
 
-input_shape = 2
+input_shape = 1
 
 @tf.function(reduce_retracing=True)
 def predict_function(model, input_data):
@@ -59,25 +59,34 @@ def main():
             passaro.mover()
 
             #aumentando score do passaro
-            fitness = 1
+            fitness = 0.1
             population[i][1] += fitness
 
-            x1 = abs(passaro.y / tela_altura)
-            x2 = abs((passaro.y - (canos[indice_cano].altura - canos[indice_cano].distancia / 2)) / tela_altura)
+            #x1 = abs(passaro.y / tela_altura)
+            #x2 = abs((passaro.x - canos[indice_cano].x) / tela_largura)
+            x3 = ((passaro.y - canos[indice_cano].pos_base) / tela_altura) + ((passaro.y - canos[indice_cano].altura) / tela_altura)
+            #x2 = abs((passaro.y - (canos[indice_cano].altura - canos[indice_cano].distancia / 2)) / tela_altura)
 
             #Realizando previsão com a rede neural do passaro
             #dados = tf.convert_to_tensor([[passaro.y, 
             #                               abs(passaro.y - canos[indice_cano].altura), 
             #                               abs(passaro.y - canos[indice_cano].pos_base)]])
 
-            dados = tf.convert_to_tensor([[x1, x2]])
+
+            population[i][1] += (1 - x3)
+            dados = tf.convert_to_tensor([[x3]])
             
             weights = population[i][2]
             model.set_weights(weights)
             prediction = predict_function(model, dados)
 
-            if prediction.numpy()[0][0] > 0.7:
+            #print(x3, prediction.numpy()[0][0])
+            if prediction.numpy()[0][0] > 0.0:
                 passaro.pular()
+
+            #print(x3)
+            #if x3 > 0:
+            #    passaro.pular()
 
         chao.mover()
 
@@ -123,7 +132,7 @@ def calcula_geracoes():
         for i in range(show_individuos):
             print(sorted(population, key=lambda x: x[1], reverse=True)[i][:2])
 
-        population = new_generation(population)
+        population = new_generation(population, input_shape)
 
 if __name__ == '__main__':
     calcula_geracoes()
