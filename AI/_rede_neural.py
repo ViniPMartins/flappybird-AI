@@ -4,8 +4,8 @@ from keras.initializers import RandomNormal
 
 def create_model(input_shape):
     model = Sequential([
-        Dense(1, input_shape=(input_shape,), activation='tanh'),
-        Dense(1, activation='tanh')
+        Dense(4, input_shape=(input_shape,), activation='relu'),
+        Dense(2, activation='relu')
     ])
 
     return model

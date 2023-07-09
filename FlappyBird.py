@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import tensorflow as tf
 import pygame
 from constructors import Passaro, Cano, Chao, desenhar_tela
@@ -9,11 +10,11 @@ tela_altura = 800
 tela_largura = 500
 
 #Configuração da Rede neural e Algoritimo genético
-num_population = 10
+num_population = 30
 num_geracoes = 50
 geracao = 0
 
-input_shape = 1
+input_shape = 3
 
 @tf.function(reduce_retracing=True)
 def predict_function(model, input_data):
@@ -62,10 +63,10 @@ def main():
             fitness = 0.1
             population[i][1] += fitness
 
-            #x1 = abs(passaro.y / tela_altura)
-            #x2 = abs((passaro.x - canos[indice_cano].x) / tela_largura)
-            x3 = ((passaro.y - canos[indice_cano].pos_base) / tela_altura) + ((passaro.y - canos[indice_cano].altura) / tela_altura)
-            #x2 = abs((passaro.y - (canos[indice_cano].altura - canos[indice_cano].distancia / 2)) / tela_altura)
+            x1 = passaro.y
+            x2 = canos[indice_cano].pos_base
+            x3 = canos[indice_cano].altura
+            #calculo_decisao = ((passaro.y - canos[indice_cano].pos_base) / tela_altura) + ((passaro.y - canos[indice_cano].altura) / tela_altura)
 
             #Realizando previsão com a rede neural do passaro
             #dados = tf.convert_to_tensor([[passaro.y, 
@@ -73,15 +74,15 @@ def main():
             #                               abs(passaro.y - canos[indice_cano].pos_base)]])
 
 
-            population[i][1] += (1 - x3)
-            dados = tf.convert_to_tensor([[x3]])
+            #population[i][1] += (1 - calculo_decisao)
+            dados = tf.convert_to_tensor([[x1, x2, x3]])
             
             weights = population[i][2]
             model.set_weights(weights)
             prediction = predict_function(model, dados)
 
             #print(x3, prediction.numpy()[0][0])
-            if prediction.numpy()[0][0] > 0.0:
+            if np.argmax(prediction) == 1:
                 passaro.pular()
 
             #print(x3)
