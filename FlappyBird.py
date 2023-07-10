@@ -16,20 +16,33 @@ geracao = 0
 
 input_shape = 3
 
+if not os.path.isdir("checkpoint"):
+    os.mkdir("checkpoint")
+
 @tf.function(reduce_retracing=True)
 def predict_function(model, input_data):
     return model(input_data, training=False)
+
+def save_model(model):
+    model.save_weights('./checkpoint/my_checkpoint')
+
+def load_model(model):
+    model.load_weights('./checkpoint/my_checkpoint')
+    return model
 
 def main():
     passaros = [Passaro(230, 350) for p in range(num_population)]
 
     chao = Chao(730)
-    canos = [Cano(700)]
+    canos = [Cano(550)]
     tela = pygame.display.set_mode((tela_largura, tela_altura))
     pontos = 0
     relogio = pygame.time.Clock()
 
     model = create_model(input_shape)
+
+    if len(os.listdir('./checkpoint')) > 0:
+        model = load_model(model)
 
     global geracao
     geracao += 1
@@ -95,15 +108,18 @@ def main():
         remover_canos = []
         for cano in canos:
             for i, passaro in enumerate(passaros):
-                if cano.colidir(passaro) or (passaro.y + passaro.imagem.get_height()) > chao.y or passaro.y < 0:
+                if cano.colidir(passaro):
                     passaros.pop(i)
                     population[i][1] -= 1
+                elif (passaro.y + passaro.imagem.get_height()) > chao.y or passaro.y < 0:
+                    passaros.pop(i)
+                    population[i][1] -= 10
 
                 if not cano.passou and passaro.x > cano.x:
                     cano.passou = True
                     adicionar_cano = True
                     #Adicionar o score
-                    fitness = 5
+                    fitness = 10
                     population[i][1] += fitness
 
             cano.mover()
@@ -130,8 +146,13 @@ def calcula_geracoes():
 
         show_individuos = 2
 
+        population_sorted = sorted(population, key=lambda x: x[1], reverse=True)
+        model = create_model(input_shape)
+        model.set_weights(population_sorted[0][2])
+        save_model(model)
+
         for i in range(show_individuos):
-            print(sorted(population, key=lambda x: x[1], reverse=True)[i][:2])
+            print(population_sorted[i][:2])
 
         population = new_generation(population, input_shape)
 
