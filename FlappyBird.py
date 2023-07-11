@@ -10,7 +10,7 @@ tela_altura = 800
 tela_largura = 500
 
 #Configuração da Rede neural e Algoritimo genético
-num_population = 20
+num_population = 1
 num_geracoes = 300
 geracao = 0
 
@@ -74,26 +74,28 @@ def main(model):
             fitness = 0.1
             population[i][1] += fitness
 
-            x1 = passaro.y
+            '''x1 = passaro.y
             x2 = canos[indice_cano].pos_base
             x3 = canos[indice_cano].altura
+            dados = [[x1, x2, x3]]'''
             #calculo_decisao = ((passaro.y - canos[indice_cano].pos_base) / tela_altura) + ((passaro.y - canos[indice_cano].altura) / tela_altura)
 
             #Realizando previsão com a rede neural do passaro
-            #dados = tf.convert_to_tensor([[passaro.y, 
-            #                               abs(passaro.y - canos[indice_cano].altura), 
-            #                               abs(passaro.y - canos[indice_cano].pos_base)]])
+            dados = tf.convert_to_tensor([[passaro.y, 
+                                           abs(passaro.y - canos[indice_cano].altura), 
+                                           abs(passaro.y - canos[indice_cano].pos_base)]])
 
 
             #population[i][1] += (1 - calculo_decisao)
-            dados = tf.convert_to_tensor([[x1, x2, x3]])
+            dados = tf.convert_to_tensor(dados)
             
             weights = population[i][2]
             model.set_weights(weights)
             prediction = predict_function(model, dados)
 
             #print(x3, prediction.numpy()[0][0])
-            if np.argmax(prediction) == 1:
+
+            if prediction.numpy()[0][0] > 0.7:
                 passaro.pular()
                 if pontos > 10:
                     model.save('best_model.h5')
@@ -138,7 +140,8 @@ def main(model):
 
 def calcula_geracoes():
 
-    model = create_model(input_shape)
+    #model = create_model(input_shape)
+    model = tf.keras.models.load_model("best_model.h5")
 
     load_checkpoint = False
     if len(os.listdir('./checkpoint')) > 0 and load_checkpoint:
@@ -146,6 +149,7 @@ def calcula_geracoes():
 
     global population 
     population = create_new_population(num_population, input_shape)
+    population[0][2] = model.get_weights()
 
     for g in range(num_geracoes):
         main(model)
@@ -153,14 +157,15 @@ def calcula_geracoes():
         print("Geração: ", g)
         print("Melhores Individuos: ")
 
-        show_individuos = 10
+        show_individuos = 1
 
         population_sorted = sorted(population, key=lambda x: x[1], reverse=True)
 
         for i in range(show_individuos):
-            print(population_sorted[i][:2])
+            print(population_sorted[i][2])
 
-        population = new_generation(population, input_shape)
+        #population = new_generation(population, input_shape)
+        #population = create_new_population(num_population, input_shape)
 
     model.set_weights(population_sorted[0][2])
     save_model(model)
