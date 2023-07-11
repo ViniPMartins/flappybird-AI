@@ -55,6 +55,7 @@ def reset_scores(population):
 
     for i in range(len(population)):
         population[i][1] = 0
+        population[i][0] = i
 
     return population
 
@@ -67,8 +68,8 @@ def new_generation(scores, input_shape):
     weights_parent_1 = parents[0][2]
     weights_parent_2 = parents[1][2]
 
-    parents[2][2] = mutation(weights_parent_1, mutation_rate=0.5)
-    parents[3][2] = mutation(weights_parent_2, mutation_rate=0.5)
+    parents[2][2] = mutation(weights_parent_1, mutation_rate=0.3)
+    parents[3][2] = mutation(weights_parent_2, mutation_rate=0.3)
 
     alredy_individuos = len(parents) + len(new_individuos)
     num_par_offsprings = int((len(scores)-alredy_individuos)/2)
@@ -77,8 +78,8 @@ def new_generation(scores, input_shape):
     
         offspring_1, offspring_2 = crossover(weights_parent_1, weights_parent_2)
         
-        offspring_1_mutation = mutation(offspring_1)
-        offspring_2_mutation = mutation(offspring_2)
+        offspring_1_mutation = mutation(offspring_1, mutation_rate=0.3)
+        offspring_2_mutation = mutation(offspring_2, mutation_rate=0.3)
         
         population_sorted[i+alredy_individuos][2] = offspring_1_mutation
         population_sorted[i+alredy_individuos+num_par_offsprings][2] = offspring_2_mutation

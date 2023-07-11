@@ -10,8 +10,8 @@ tela_altura = 800
 tela_largura = 500
 
 #Configuração da Rede neural e Algoritimo genético
-num_population = 30
-num_geracoes = 50
+num_population = 20
+num_geracoes = 300
 geracao = 0
 
 input_shape = 3
@@ -24,13 +24,15 @@ def predict_function(model, input_data):
     return model(input_data, training=False)
 
 def save_model(model):
+    print("Salvando modelo")
     model.save_weights('./checkpoint/my_checkpoint')
 
 def load_model(model):
+    print("Carregando modelo")
     model.load_weights('./checkpoint/my_checkpoint')
     return model
 
-def main():
+def main(model):
     passaros = [Passaro(230, 350) for p in range(num_population)]
 
     chao = Chao(730)
@@ -38,11 +40,6 @@ def main():
     tela = pygame.display.set_mode((tela_largura, tela_altura))
     pontos = 0
     relogio = pygame.time.Clock()
-
-    model = create_model(input_shape)
-
-    if len(os.listdir('./checkpoint')) > 0:
-        model = load_model(model)
 
     global geracao
     geracao += 1
@@ -54,6 +51,7 @@ def main():
             if evento.type == pygame.QUIT:
                 rodando = False
                 pygame.quit()
+                save_model(model)
                 quit()
             #if evento.type == pygame.KEYDOWN:
              #   if evento.key == pygame.K_SPACE:
@@ -97,6 +95,9 @@ def main():
             #print(x3, prediction.numpy()[0][0])
             if np.argmax(prediction) == 1:
                 passaro.pular()
+                if pontos > 10:
+                    model.save('best_model.h5')
+                    rodando = False
 
             #print(x3)
             #if x3 > 0:
@@ -119,7 +120,7 @@ def main():
                     cano.passou = True
                     adicionar_cano = True
                     #Adicionar o score
-                    fitness = 10
+                    fitness = 20
                     population[i][1] += fitness
 
             cano.mover()
@@ -136,25 +137,33 @@ def main():
         desenhar_tela(tela, tela_largura, passaros, canos, chao, pontos, geracao)
 
 def calcula_geracoes():
+
+    model = create_model(input_shape)
+
+    load_checkpoint = False
+    if len(os.listdir('./checkpoint')) > 0 and load_checkpoint:
+        model = load_model(model)
+
     global population 
     population = create_new_population(num_population, input_shape)
 
     for g in range(num_geracoes):
-        main()
+        main(model)
+
         print("Geração: ", g)
         print("Melhores Individuos: ")
 
-        show_individuos = 2
+        show_individuos = 10
 
         population_sorted = sorted(population, key=lambda x: x[1], reverse=True)
-        model = create_model(input_shape)
-        model.set_weights(population_sorted[0][2])
-        save_model(model)
 
         for i in range(show_individuos):
             print(population_sorted[i][:2])
 
         population = new_generation(population, input_shape)
+
+    model.set_weights(population_sorted[0][2])
+    save_model(model)
 
 if __name__ == '__main__':
     calcula_geracoes()
