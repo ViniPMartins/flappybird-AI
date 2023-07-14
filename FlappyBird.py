@@ -10,7 +10,7 @@ tela_altura = 800
 tela_largura = 500
 
 #Configuração da Rede neural e Algoritimo genético
-num_population = 1
+num_population = 20
 num_geracoes = 300
 geracao = 0
 
@@ -97,9 +97,6 @@ def main(model):
 
             if prediction.numpy()[0][0] > 0.7:
                 passaro.pular()
-                if pontos > 10:
-                    model.save('best_model.h5')
-                    rodando = False
 
             #print(x3)
             #if x3 > 0:
@@ -140,16 +137,24 @@ def main(model):
 
 def calcula_geracoes():
 
-    #model = create_model(input_shape)
-    model = tf.keras.models.load_model("best_model.h5")
+    global population
+    global num_population
+    
+    use_model_trained = False
 
-    load_checkpoint = False
-    if len(os.listdir('./checkpoint')) > 0 and load_checkpoint:
-        model = load_model(model)
+    if use_model_trained:
+        num_population = 1
+        model = tf.keras.models.load_model("best_model.h5")
+        population = create_new_population(num_population, input_shape)
+        population[0][2] = model.get_weights()
 
-    global population 
-    population = create_new_population(num_population, input_shape)
-    population[0][2] = model.get_weights()
+    else:
+        model = create_model(input_shape)
+        load_checkpoint = True
+        if len(os.listdir('./checkpoint')) > 0 and load_checkpoint:
+            model = load_model(model)
+
+        population = create_new_population(num_population, input_shape)
 
     for g in range(num_geracoes):
         main(model)
@@ -157,14 +162,14 @@ def calcula_geracoes():
         print("Geração: ", g)
         print("Melhores Individuos: ")
 
-        show_individuos = 1
+        show_individuos = 2
 
         population_sorted = sorted(population, key=lambda x: x[1], reverse=True)
 
         for i in range(show_individuos):
-            print(population_sorted[i][2])
+            print(population_sorted[i][:2])
 
-        #population = new_generation(population, input_shape)
+        population = new_generation(population, input_shape)
         #population = create_new_population(num_population, input_shape)
 
     model.set_weights(population_sorted[0][2])
