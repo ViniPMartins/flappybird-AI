@@ -3,13 +3,13 @@ from sklearn.metrics import accuracy_score
 from AI import create_weights
 from math import floor
 
-def create_new_population(num_population, input_shape):
+def create_new_population(num_population, input_shape, idx=0):
     population = []
 
     for i in range(num_population):
         weights = create_weights(input_shape)
         initial_score = 0
-        population.append([i, initial_score, weights])
+        population.append([i + idx, initial_score, weights])
         
     return population
    
@@ -54,7 +54,6 @@ def reset_scores(population):
 
     for i in range(len(population)):
         population[i][1] = 0
-        population[i][0] = i
 
     return population
 
@@ -65,15 +64,17 @@ def make_parents(population, elitism):
     assert verification, msg
 
     parents = population[:elitism]
+    #print(parents)
     return parents
 
-def make_survivors(population, elitism, survival_threshold, crossover_rate, mutation_rate):
+def make_survivors(population, elitism, survival_threshold, crossover_rate, mutation_rate, idx=0):
 
     n_survival = floor(len(population[elitism:])*survival_threshold)
 
     survivors = population[:n_survival]
     for i in range(n_survival):
 
+        survivors[i][0] = idx + i
         weights_individuo = survivors[i][2]
 
         if np.random.random() <= crossover_rate:
@@ -88,11 +89,12 @@ def make_survivors(population, elitism, survival_threshold, crossover_rate, muta
 
     return survivors
 
-def make_new_individuos(input_shape, n_population, n_parents, n_survivors):
+def make_new_individuos(input_shape, n_population, n_parents, n_survivors, idx=0):
 
     n_new_individuos = n_population - n_parents - n_survivors
+    index_inicial = idx + n_survivors
 
-    new_individuos = create_new_population(n_new_individuos, input_shape)
+    new_individuos = create_new_population(n_new_individuos, input_shape, idx=index_inicial)
     return new_individuos
 
 def new_generation(population, input_shape, elitism=2, survival_threshold=0.2, crossover_rate=0.5, mutation_rate=0.1):
@@ -106,13 +108,17 @@ def new_generation(population, input_shape, elitism=2, survival_threshold=0.2, c
 
     population_sorted = sorted(population, key=lambda column: column[1], reverse=True)
 
+    #print(population_sorted[:2], '\n')
+
+    index_max = max(np.array(population_sorted, dtype=object)[:,0])
+
     parents = make_parents(population_sorted, elitism)
-    survivors = make_survivors(population_sorted, elitism, survival_threshold, crossover_rate, mutation_rate)
+    survivors = make_survivors(population_sorted, elitism, survival_threshold, crossover_rate, mutation_rate, index_max)
 
     n_population = len(population)
     n_parents = len(parents)
     n_survivors = len(survivors)
-    new_individuos = make_new_individuos(input_shape, n_population, n_parents, n_survivors)
+    new_individuos = make_new_individuos(input_shape, n_population, n_parents, n_survivors, index_max)
     
     new_generation = parents + survivors + new_individuos
 
