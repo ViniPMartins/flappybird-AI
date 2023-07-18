@@ -32,7 +32,7 @@ def load_model(model):
     model.load_weights('./checkpoint/my_checkpoint')
     return model
 
-def main(model):
+def main(model, population):
     passaros = [Passaro(230, 350) for p in range(num_population)]
 
     chao = Chao(730)
@@ -137,7 +137,7 @@ def main(model):
 
 def calcula_geracoes():
 
-    global population
+    #global population
     global num_population
     
     use_model_trained = False
@@ -157,7 +157,7 @@ def calcula_geracoes():
         population = create_new_population(num_population, input_shape)
 
     for g in range(num_geracoes):
-        main(model)
+        main(model, population)
 
         print("Geração: ", g)
         print("Melhores Individuos: ")

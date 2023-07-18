@@ -110,9 +110,9 @@ def new_generation(population, input_shape, elitism=2, survival_threshold=0.2, c
 
     #print(population_sorted[:2], '\n')
 
-    index_max = max(np.array(population_sorted, dtype=object)[:,0])
-
     parents = make_parents(population_sorted, elitism)
+
+    index_max = max(np.array(parents, dtype=object)[:,0])
     survivors = make_survivors(population_sorted, elitism, survival_threshold, crossover_rate, mutation_rate, index_max)
 
     n_population = len(population)
