@@ -32,7 +32,7 @@ def load_model(model):
     model.load_weights('./checkpoint/my_checkpoint')
     return model
 
-def main(model, population):
+def main(model, saved_checkpoint):
     passaros = [Passaro(230, 350) for p in range(num_population)]
 
     chao = Chao(730)
@@ -51,6 +51,10 @@ def main(model, population):
             if evento.type == pygame.QUIT:
                 rodando = False
                 pygame.quit()
+                if saved_checkpoint:
+                    population_sorted = sorted(population, key=lambda x: x[1], reverse=True)
+                    model.set_weights(population_sorted[0][2])
+                    save_model(model)
                 quit()
             #if evento.type == pygame.KEYDOWN:
              #   if evento.key == pygame.K_SPACE:
@@ -73,10 +77,6 @@ def main(model, population):
             fitness = 0.1
             population[i][1] += fitness
 
-            '''x1 = passaro.y
-            x2 = canos[indice_cano].pos_base
-            x3 = canos[indice_cano].altura
-            dados = [[x1, x2, x3]]'''
             #calculo_decisao = ((passaro.y - canos[indice_cano].pos_base) / tela_altura) + ((passaro.y - canos[indice_cano].altura) / tela_altura)
 
             #Realizando previsão com a rede neural do passaro
@@ -84,20 +84,15 @@ def main(model, population):
                                            abs(passaro.y - canos[indice_cano].altura), 
                                            abs(passaro.y - canos[indice_cano].pos_base)]])
 
-
-            #population[i][1] += (1 - calculo_decisao)
             dados = tf.convert_to_tensor(dados)
             
             weights = population[i][2]
             model.set_weights(weights)
             prediction = predict_function(model, dados)
 
-            #print(x3, prediction.numpy()[0][0])
-
             if prediction.numpy()[0][0] > 0.7:
                 passaro.pular()
 
-            #print(x3)
             #if x3 > 0:
             #    passaro.pular()
 
@@ -134,8 +129,6 @@ def main(model, population):
 
         desenhar_tela(tela, tela_largura, passaros, canos, chao, pontos, geracao)
 
-    return population
-
 
 def print_results(geracao, population, show_individuos = 2):
     print(f"\nGeração: {geracao}")
@@ -157,7 +150,7 @@ def print_results(geracao, population, show_individuos = 2):
 
 def calcula_geracoes():
 
-    #global population
+    global population
     global num_population
     
     use_model_trained = False
@@ -170,23 +163,20 @@ def calcula_geracoes():
 
     else:
         model = create_model(input_shape)
-        #load_checkpoint = True
-        #if len(os.listdir('./checkpoint')) > 0 and load_checkpoint:
-        #    model = load_model(model)
+        load_checkpoint = False
+        if len(os.listdir('./checkpoint/')) > 0 and load_checkpoint:
+            model = load_model(model)
 
         population = create_new_population(num_population, input_shape)
 
+    saved_checkpoint = False
+
     for g in range(num_geracoes):
-        population = main(model, population)
+        main(model, saved_checkpoint)
 
         print_results(geracao, population)
 
         population = new_generation(population, input_shape)
-        #population = create_new_population(num_population, input_shape)
-
-    #population_sorted = sorted(population, key=lambda x: x[1], reverse=True)
-    #model.set_weights(population_sorted[0][2])
-    #save_model(model)
 
 if __name__ == '__main__':
     calcula_geracoes()
