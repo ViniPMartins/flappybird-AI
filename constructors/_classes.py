@@ -15,9 +15,9 @@ class Passaro:
     # Imagens dos passaros
     imgs = img_passaros
     # Quanto será o máximo que  ele irá rotacionar para cima
-    rotacao_maxima = 25
+    rotacao_maxima = 30
     # QUal a velocidade que ele irá rotacionar caindo
-    velocidade_rotacao = 20
+    velocidade_rotacao = 15
     # tempo de animação para definir a imagem do passaro a ser usada
     tempo_animacao = 5
 
@@ -41,7 +41,7 @@ class Passaro:
     def mover(self):
         # A cada iteração acrescenta 1 no tempo e recalcula a formula do deslocamento em parabola
         self.tempo += 1
-        deslocamento = 1.6 * (self.tempo ** 2) + self.velocidade * self.tempo
+        deslocamento = 1.4 * (self.tempo ** 2) + self.velocidade * self.tempo
 
         # Primeiro, coloca um limite para o deslocamento quando o passaro estiver caindo, sendo no máximo 16
         if deslocamento > 16:
@@ -57,14 +57,14 @@ class Passaro:
 
         # Nesse bloco será definida a rotação do passaro, sendo valores negativos rotacionar em sentido horário e
         # positivo, anti-horário. Primeiro verifica se o passaro está subindo
-        if deslocamento < 0 or self.y < (self.altura + 50):
+        if deslocamento < 0:
             # Em seguida, verifica se o angulo é menor do que a rotação máxima permitida. Caso True, defini-se a
             # rotação máxima como o angulo
             if self.angulo < self.rotacao_maxima:
                 self.angulo = self.rotacao_maxima
-        # Caso o passaro esteja descendo,ele irá diminuir o angulo pela velocidade_rotacao até que chegue a -90 graus
+        # Caso o passaro esteja descendo,ele irá diminuir o angulo pela velocidade_rotacao até que chegue a -80 graus
         else:
-            if self.angulo > -90:
+            if self.angulo > -80:
                 self.angulo -= self.velocidade_rotacao
 
     def desenhar(self, tela):
@@ -110,7 +110,7 @@ class Passaro:
 class Cano:
     # Definições gerais da classe cano
     # Distancia entre o cano de cima e o cano de baixo
-    distancia = 200
+    distancia = 250
     # Velocidade horizontal do cano
     velocidade = 5
     # Velocidade vertival do cano
@@ -144,8 +144,8 @@ class Cano:
             self.vel_cano = 3
 
         # Movimetno vertical
-        self.pos_topo += self.vel_cano
-        self.pos_base += self.vel_cano
+        #self.pos_topo += self.vel_cano
+        #self.pos_base += self.vel_cano
         # Movimento Horizontal
         self.x -= self.velocidade
 
