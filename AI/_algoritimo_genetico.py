@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 from AI import create_weights
 from math import floor
+from copy import deepcopy
 
 def create_new_population(num_population, input_shape):
     population = []
@@ -72,16 +73,16 @@ def make_parents(population, elitism):
 
 def make_survivors(population, elitism, survival_threshold, crossover_rate, mutation_rate):
 
-    n_survival = floor(len(population[elitism:])*survival_threshold)
+    n_survival = floor(len(population)*survival_threshold)
 
-    survivors = population[:n_survival]
+    survivors = deepcopy(population[:n_survival])
     for i in range(n_survival):
 
         weights_individuo = survivors[i][2]
 
-        if np.random.random() <= crossover_rate:
-            idx1 = np.random.randint(0, n_survival)
-            idx2 = np.random.randint(0, n_survival)
+        if np.random.random() <= crossover_rate and n_survival > 1:
+            idx1 = 0
+            idx2 = np.random.randint(1, n_survival)
             weights_1 = survivors[idx1][2]
             weights_2 = survivors[idx2][2]
 
