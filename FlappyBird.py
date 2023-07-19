@@ -51,7 +51,6 @@ def main(model, population):
             if evento.type == pygame.QUIT:
                 rodando = False
                 pygame.quit()
-                save_model(model)
                 quit()
             #if evento.type == pygame.KEYDOWN:
              #   if evento.key == pygame.K_SPACE:
@@ -135,6 +134,27 @@ def main(model, population):
 
         desenhar_tela(tela, tela_largura, passaros, canos, chao, pontos, geracao)
 
+    return population
+
+
+def print_results(geracao, population, show_individuos = 2):
+    print(f"\nGeração: {geracao}")
+    print("Melhores Individuos: ")
+
+    population_sorted = sorted(population, key=lambda x: x[1], reverse=True)
+
+    print(f"{'Id':^5} | {'Age':^5} | {'fitness':^5}")
+    print(f"{'-'*5} | {'-'*5} | {'-'*5}")
+
+    for i in range(show_individuos):
+        id = population_sorted[i][0]
+        fitness = population_sorted[i][1]
+        age = population_sorted[i][3]
+        print(f"{id:^5} | {age:^5} | {fitness:^5.4f}")
+
+    print("\n")
+
+
 def calcula_geracoes():
 
     #global population
@@ -150,30 +170,23 @@ def calcula_geracoes():
 
     else:
         model = create_model(input_shape)
-        load_checkpoint = True
-        if len(os.listdir('./checkpoint')) > 0 and load_checkpoint:
-            model = load_model(model)
+        #load_checkpoint = True
+        #if len(os.listdir('./checkpoint')) > 0 and load_checkpoint:
+        #    model = load_model(model)
 
         population = create_new_population(num_population, input_shape)
 
     for g in range(num_geracoes):
-        main(model, population)
+        population = main(model, population)
 
-        print("Geração: ", g)
-        print("Melhores Individuos: ")
-
-        show_individuos = 2
-
-        population_sorted = sorted(population, key=lambda x: x[1], reverse=True)
-
-        for i in range(show_individuos):
-            print(population_sorted[i][:2])
+        print_results(geracao, population)
 
         population = new_generation(population, input_shape)
         #population = create_new_population(num_population, input_shape)
 
-    model.set_weights(population_sorted[0][2])
-    save_model(model)
+    #population_sorted = sorted(population, key=lambda x: x[1], reverse=True)
+    #model.set_weights(population_sorted[0][2])
+    #save_model(model)
 
 if __name__ == '__main__':
     calcula_geracoes()
