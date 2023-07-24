@@ -11,7 +11,7 @@ tela_largura = 500
 num_population = 100
 num_geracoes = 300
 geracao = 0
-learning_threshold = 200
+learning_threshold = 1000
 
 input_shape = 3
 
@@ -136,7 +136,7 @@ def calcula_geracoes():
     global num_population
     global learning_threshold
 
-    use_trained_model = True
+    use_trained_model = False
 
     if use_trained_model:
         num_population = 1
