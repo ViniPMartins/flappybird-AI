@@ -1,5 +1,4 @@
 import numpy as np
-from sklearn.metrics import accuracy_score
 from AI import create_weights
 from math import floor
 from copy import deepcopy
@@ -89,6 +88,7 @@ def make_survivors(population, elitism, survival_threshold, crossover_rate, muta
             weights_individuo = crossover(weights_1, weights_2)
         
         survivors[i][2] = mutation(weights_individuo, mutation_rate)
+        survivors[i][3] = 0
 
     return survivors
 

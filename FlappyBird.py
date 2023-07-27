@@ -1,6 +1,4 @@
 import os
-import numpy as np
-import tensorflow as tf
 import pygame
 from constructors import Passaro, Cano, Chao, desenhar_tela
 from AI import create_new_population, new_generation, create_model
@@ -10,29 +8,14 @@ tela_altura = 800
 tela_largura = 500
 
 #Configuração da Rede neural e Algoritimo genético
-num_population = 20
+num_population = 100
 num_geracoes = 300
 geracao = 0
+learning_threshold = 1000
 
 input_shape = 3
 
-if not os.path.isdir("checkpoint"):
-    os.mkdir("checkpoint")
-
-@tf.function(reduce_retracing=True)
-def predict_function(model, input_data):
-    return model(input_data, training=False)
-
-def save_model(model):
-    print("Salvando modelo")
-    model.save_weights('./checkpoint/my_checkpoint')
-
-def load_model(model):
-    print("Carregando modelo")
-    model.load_weights('./checkpoint/my_checkpoint')
-    return model
-
-def main(model, saved_checkpoint):
+def main(model):
     passaros = [Passaro(230, 350) for p in range(num_population)]
 
     chao = Chao(730)
@@ -51,10 +34,6 @@ def main(model, saved_checkpoint):
             if evento.type == pygame.QUIT:
                 rodando = False
                 pygame.quit()
-                if saved_checkpoint:
-                    population_sorted = sorted(population, key=lambda x: x[1], reverse=True)
-                    model.set_weights(population_sorted[0][2])
-                    save_model(model)
                 quit()
             #if evento.type == pygame.KEYDOWN:
              #   if evento.key == pygame.K_SPACE:
@@ -80,17 +59,13 @@ def main(model, saved_checkpoint):
             #calculo_decisao = ((passaro.y - canos[indice_cano].pos_base) / tela_altura) + ((passaro.y - canos[indice_cano].altura) / tela_altura)
 
             #Realizando previsão com a rede neural do passaro
-            dados = tf.convert_to_tensor([[passaro.y, 
-                                           abs(passaro.y - canos[indice_cano].altura), 
-                                           abs(passaro.y - canos[indice_cano].pos_base)]])
-
-            dados = tf.convert_to_tensor(dados)
+            dados = [passaro.y, (passaro.y - canos[indice_cano].altura), (passaro.y - canos[indice_cano].pos_base)]
             
             weights = population[i][2]
             model.set_weights(weights)
-            prediction = predict_function(model, dados)
+            prediction = model.predict(dados)
 
-            if prediction.numpy()[0][0] > 0.7:
+            if prediction[0] > 0.75:
                 passaro.pular()
 
             #if x3 > 0:
@@ -115,6 +90,13 @@ def main(model, saved_checkpoint):
                     #Adicionar o score
                     fitness = 20
                     population[i][1] += fitness
+                    if population[i][1] >= learning_threshold:
+                        weights = population[i][2]
+                        model.set_weights(weights)
+                        model.save_params()
+                        rodando = False
+                        pygame.quit()
+                        quit()
 
             cano.mover()
             if cano.x + cano.cano_topo.get_width() < 0:
@@ -152,27 +134,26 @@ def calcula_geracoes():
 
     global population
     global num_population
-    
-    use_model_trained = False
+    global learning_threshold
 
-    if use_model_trained:
+    use_trained_model = False
+
+    if use_trained_model:
         num_population = 1
-        model = tf.keras.models.load_model("best_model.h5")
         population = create_new_population(num_population, input_shape)
+
+        model = create_model(input_shape)
+        model.load_params()
+
         population[0][2] = model.get_weights()
+        learning_threshold = 100000
 
     else:
         model = create_model(input_shape)
-        load_checkpoint = False
-        if len(os.listdir('./checkpoint/')) > 0 and load_checkpoint:
-            model = load_model(model)
-
         population = create_new_population(num_population, input_shape)
 
-    saved_checkpoint = False
-
     for g in range(num_geracoes):
-        main(model, saved_checkpoint)
+        main(model)
 
         print_results(geracao, population)
 
