@@ -22,7 +22,7 @@ class Perceptron(object):
 
     def save_params(self):
         folder_name = "checkpoint"
-        file_name = "saved_params.npy"
+        file_name = "saved_params_v3.npy"
 
         if not os.path.isdir(folder_name):
             os.mkdir(folder_name)

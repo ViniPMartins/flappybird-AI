@@ -118,6 +118,8 @@ def print_results(geracao, population, show_individuos = 2):
 
     population_sorted = sorted(population, key=lambda x: x[1], reverse=True)
 
+    print("Parâmetros melhor Individuo: \n", population_sorted[0][2])
+
     print(f"{'Id':^5} | {'Age':^5} | {'fitness':^5}")
     print(f"{'-'*5} | {'-'*5} | {'-'*5}")
 
