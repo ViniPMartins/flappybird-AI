@@ -100,13 +100,6 @@ def make_new_individuos(input_shape, n_population, n_parents, n_survivors):
     return new_individuos
 
 def new_generation(population, input_shape, elitism=2, survival_threshold=0.2, crossover_rate=0.5, mutation_rate=0.1):
-    '''
-    Coisas a adicionar:
-    - OK Nº de individuos que vão para a próxima geração (Elitismo ou parents)
-    - OK % da especie que passa para a próxima geração (survival_threshold)
-    - OK % de crossover (crossover_rate)
-    - % de mutatation (mutation_rate)
-    '''
 
     population_sorted = sorted(population, key=lambda column: column[1], reverse=True)
 
