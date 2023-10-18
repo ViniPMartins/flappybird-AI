@@ -33,21 +33,21 @@ def crossover(weights_parents_1, weights_parents_2):
 
     return offspring_1
 
-def mutation(weights, mutation_rate = 0.1):
+def mutation(weights, mutation_rate = 0.1, mutation_intensity=0.5):
     for i in range(len(weights)):
 
         if len(weights[i].shape) == 1:
             for j in range(weights[i].shape[0]):
                 if np.random.random() <= mutation_rate:
-                    new_bias = np.random.random()
-                    weights[i][j] = new_bias
+                    new_bias = np.random.random()*mutation_intensity
+                    weights[i][j] += new_bias
 
         else:
             for j in range(weights[i].shape[0]):
                 for k in range(weights[i].shape[1]):
                     if np.random.random() <= mutation_rate:
-                        new_bias = np.random.random()
-                        weights[i][j][k] = new_bias
+                        new_bias = np.random.random()*mutation_intensity
+                        weights[i][j][k] += new_bias
                         
     return weights
 
@@ -81,7 +81,7 @@ def make_survivors(population, elitism, survival_threshold, crossover_rate, muta
 
         if np.random.random() <= crossover_rate and n_survival > 1:
             idx1 = 0
-            idx2 = np.random.randint(1, n_survival)
+            idx2 = np.random.randint(1, elitism)
             weights_1 = survivors[idx1][2]
             weights_2 = survivors[idx2][2]
 
