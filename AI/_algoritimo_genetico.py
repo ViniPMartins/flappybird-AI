@@ -116,7 +116,7 @@ def new_generation(population, input_shape, elitism=2, survival_threshold=0.2, c
     
     new_generation = parents + survivors + new_individuos
 
-    print(f'Mantendo: {n_parents} melhores individuos \nCriando: {n_survivors} sobreviventes \nCriando: {n_population - n_parents - n_survivors} novos individuos')
+    print(f'Mantendo: {n_parents} melhores individuos (pais) \nTransformando: {n_survivors} sobreviventes (filhos) \nCriando: {n_population - n_parents - n_survivors} novos individuos')
 
     new_generation_reseted_scores = reset_scores(new_generation)
 
