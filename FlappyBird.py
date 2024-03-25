@@ -4,7 +4,7 @@ from AI import create_new_population, new_generation, create_model
 
 class Game:
 
-    def __init__(self, use_trained_model = False) -> None:
+    def __init__(self, use_trained_model = False, use_neural_net_model = True) -> None:
         # Definições gerais do jogo como tamanho da tela e imagens usadas
         self.tela_altura = 800
         self.tela_largura = 500
@@ -16,6 +16,7 @@ class Game:
         self.learning_threshold = 1000
         self.input_shape = 3
         self.use_trained_model = use_trained_model
+        self.use_neural_net_model = use_neural_net_model
 
     def init_objects(self):
         self.passaros = [Passaro(230, 350) for p in range(self.num_population)]
@@ -62,24 +63,34 @@ class Game:
     def moving_passaro(self, idx_passaro, passaro):
             passaro.mover()
 
-            #aumentando score do passaro
-            fitness = 0.1
-            self.population[idx_passaro][1] += fitness
+            if self.use_neural_net_model:
+                self.increase_fitness(idx_passaro)
+                prediction = self.predict_move_with_model(idx_passaro, passaro)
+            else:
+                prediction = self.predict_move_with_calc(passaro)
 
-            #fazendo cálculo da decisão manualmente
-            #calculo_decisao = ((passaro.y - canos[indice_cano].pos_base) / tela_altura) + ((passaro.y - canos[indice_cano].altura) / tela_altura)
-            #if calculo_decisao > 0:
-            #    passaro.pular()
-
-            #Realizando previsão com a rede neural do passaro
-            dados = [passaro.y, (passaro.y - self.canos[self.indice_cano].altura), (passaro.y - self.canos[self.indice_cano].pos_base)]
-            
-            weights = self.population[idx_passaro][2]
-            self.model.set_weights(weights)
-            prediction = self.model.predict(dados)
-
-            if prediction[0] > 0.75:
+            if prediction:
                 passaro.pular()
+
+    def increase_fitness(self, idx_passaro):
+        fitness = 0.1
+        self.population[idx_passaro][1] += fitness
+    
+    def predict_move_with_calc(self, passaro):
+        calculo_decisao = ((passaro.y - self.canos[self.indice_cano].pos_base) / self.tela_altura) + ((passaro.y - self.canos[self.indice_cano].altura) / self.tela_altura)
+        if calculo_decisao > 0:
+           return True
+        return False
+
+    def predict_move_with_model(self, idx_passaro, passaro):
+        dados = [passaro.y, (passaro.y - self.canos[self.indice_cano].altura), (passaro.y - self.canos[self.indice_cano].pos_base)]
+            
+        weights = self.population[idx_passaro][2]
+        self.model.set_weights(weights)
+        prediction = self.model.predict(dados)
+        if prediction[0] > 0.75:
+            return True
+        return False
 
     def check_colision(self, i, cano, passaro):
         if cano.colidir(passaro):
@@ -135,8 +146,9 @@ class Game:
                         cano.passou = True
                         self.add_cano()
 
-                        self.increse_fitness_passing_cano(i)
-                        self.check_learning_threshold(i)
+                        if self.use_neural_net_model:
+                            self.increse_fitness_passing_cano(i)
+                            self.check_learning_threshold(i)
 
                 cano.mover()
                 self.check_remove_canos(cano)
@@ -163,9 +175,7 @@ class Game:
         print("\n")
 
     def using_trained_model(self):
-        self.num_population = 1
         self.population = create_new_population(self.num_population, self.input_shape)
-
         self.model = create_model(self.input_shape)
         self.model.load_params()
 
@@ -175,8 +185,8 @@ class Game:
         self.main()
     
     def new_training_routine(self):
-        self.model = create_model(self.input_shape)
         self.population = create_new_population(self.num_population, self.input_shape)
+        self.model = create_model(self.input_shape)
 
         for g in range(self.num_geracoes):
             self.geracao += 1
@@ -184,14 +194,23 @@ class Game:
             self.print_results(self.geracao, self.population)
             self.population = new_generation(self.population, self.input_shape)
 
-    def init_generations(self):
+    def init_game(self):
 
-        if self.use_trained_model:
-            self.using_trained_model()
+        if not self.use_neural_net_model:
+            print("Using manual calculation")
+            self.num_population = 1
+            self.main()
         else:
-            self.new_training_routine()
+            if self.use_trained_model:
+                print("Using trained Neural Network")
+                self.num_population = 1
+                self.using_trained_model()
+            else:
+                print("Training a new Neural Network")
+                self.new_training_routine()
 
 if __name__ == '__main__':
-    use_trained_model = False
-    game_app = Game(use_trained_model)
-    game_app.init_generations()
+    use_neural_net_model = True
+    use_trained_model = True
+    game_app = Game(use_trained_model, use_neural_net_model)
+    game_app.init_game()
