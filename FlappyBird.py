@@ -34,6 +34,23 @@ class SetupNeuralNetwork:
         fitness = 20
         self.population[idx][1] += fitness
 
+    def predict_move_with_calc(self, dados):
+        calculo_decisao = (dados['dist_bot'] / dados['screen_h']) + (dados['dist_top'] / dados['screen_h'])
+        if calculo_decisao > 0:
+           return True
+        else:
+            return False
+
+    def predict_move_with_model(self, idx_passaro, dados):
+        data_to_predict = [dados['y'], dados['dist_top'], dados['dist_bot']]
+            
+        weights = self.population[idx_passaro][2]
+        self.model.set_weights(weights)
+        prediction = self.model.predict(data_to_predict)
+        if prediction[0] > 0.75:
+            return True
+        return False
+
 class Game(SetupNeuralNetwork):
 
     def __init__(self, use_neural_net_model = True, use_trained_model = False) -> None:
@@ -96,28 +113,25 @@ class Game(SetupNeuralNetwork):
 
             if self.use_neural_net_model:
                 self.increase_fitness(idx_passaro)
-                prediction = self.predict_move_with_model(idx_passaro, passaro)
-            else:
-                prediction = self.predict_move_with_calc(passaro)
+            #     prediction = self.predict_move_with_model(idx_passaro, passaro)
+            # else:
+            #     prediction = self.predict_move_with_calc(passaro)
 
-            if prediction:
+            if self.jump_decision(idx_passaro, passaro):
                 passaro.pular()
     
-    def predict_move_with_calc(self, passaro):
-        calculo_decisao = ((passaro.y - self.canos[self.indice_cano].pos_base) / self.tela_altura) + ((passaro.y - self.canos[self.indice_cano].altura) / self.tela_altura)
-        if calculo_decisao > 0:
-           return True
-        return False
+    def jump_decision(self, idx_passaro, passaro):
+        data = {
+            'y': passaro.y, 
+            'dist_top': (passaro.y - self.canos[self.indice_cano].altura), 
+            'dist_bot': (passaro.y - self.canos[self.indice_cano].pos_base),
+            'screen_h':self.tela_altura
+        }
 
-    def predict_move_with_model(self, idx_passaro, passaro):
-        dados = [passaro.y, (passaro.y - self.canos[self.indice_cano].altura), (passaro.y - self.canos[self.indice_cano].pos_base)]
-            
-        weights = self.population[idx_passaro][2]
-        self.model.set_weights(weights)
-        prediction = self.model.predict(dados)
-        if prediction[0] > 0.75:
-            return True
-        return False
+        if self.use_neural_net_model:
+            return self.predict_move_with_model(idx_passaro, data)
+        else:
+            return self.predict_move_with_calc(data)
 
     def check_colision(self, i, cano, passaro):
         if cano.colidir(passaro):
@@ -207,10 +221,10 @@ class Game(SetupNeuralNetwork):
             self.init_game()
             if not self.use_trained_model:
                 self.print_results(self.geracao, self.population)
-                self.population = new_generation(self.population, self.input_shape)
+                self.setup_new_generation()
 
 if __name__ == '__main__':
     use_neural_net_model = True
-    use_trained_model = True
+    use_trained_model = False
     game_app = Game(use_neural_net_model, use_trained_model,)
     game_app.main()
