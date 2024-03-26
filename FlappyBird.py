@@ -13,26 +13,6 @@ class SetupNeuralNetwork:
         self.use_neural_net_model = use_neural_net_model
         self.use_trained_model = use_trained_model
 
-    # def using_trained_model(self):
-    #     self.population = create_new_population(self.num_population, self.input_shape)
-    #     self.model = create_model(self.input_shape)
-    #     self.model.load_params()
-
-    #     self.population[0][2] = self.model.get_weights()
-    #     self.learning_threshold = 100000
-
-    #     self.main()
-    
-    # def new_training_routine(self):
-    #     self.population = create_new_population(self.num_population, self.input_shape)
-    #     self.model = create_model(self.input_shape)
-
-    #     for g in range(self.num_geracoes):
-    #         self.geracao += 1
-    #         self.main()
-    #         self.print_results(self.geracao, self.population)
-    #         self.population = new_generation(self.population, self.input_shape)
-
     def setup_new_generation(self):
         self.geracao += 1
         self.population = new_generation(self.population, self.input_shape)
@@ -164,7 +144,7 @@ class Game(SetupNeuralNetwork):
         if cano.x + cano.cano_topo.get_width() < 0:
             self.canos.remove(cano)
 
-    def main(self):
+    def init_game(self):
 
         self.init_objects()
         self.rodando = True
@@ -182,7 +162,6 @@ class Game(SetupNeuralNetwork):
 
             for cano in self.canos:
                 for i, passaro in enumerate(self.passaros):
-                    #self.moving_passaro(i, passaro)
                     self.check_colision(i, cano, passaro)
 
                     if not cano.passou and passaro.x > cano.x:
@@ -217,7 +196,7 @@ class Game(SetupNeuralNetwork):
 
         print("\n")
 
-    def init_game(self):
+    def main(self):
 
         if self.use_neural_net_model:
             self.setup_population()
@@ -225,7 +204,7 @@ class Game(SetupNeuralNetwork):
             print("Using manual calculation")
 
         for g in range(self.num_geracoes):
-            self.main()
+            self.init_game()
             if not self.use_trained_model:
                 self.print_results(self.geracao, self.population)
                 self.population = new_generation(self.population, self.input_shape)
@@ -234,4 +213,4 @@ if __name__ == '__main__':
     use_neural_net_model = True
     use_trained_model = True
     game_app = Game(use_neural_net_model, use_trained_model,)
-    game_app.init_game()
+    game_app.main()
