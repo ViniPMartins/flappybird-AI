@@ -2,21 +2,72 @@ import pygame
 from constructors import Passaro, Cano, Chao, desenhar_tela
 from AI import create_new_population, new_generation, create_model
 
-class Game:
+class SetupNeuralNetwork:
 
-    def __init__(self, use_trained_model = False, use_neural_net_model = True) -> None:
-        # Definições gerais do jogo como tamanho da tela e imagens usadas
-        self.tela_altura = 800
-        self.tela_largura = 500
-
-        #Configuração da Rede neural e Algoritimo genético
+    def __init__(self, use_neural_net_model, use_trained_model) -> None:
         self.num_population = 100
         self.num_geracoes = 300
         self.geracao = 0
         self.learning_threshold = 1000
         self.input_shape = 3
-        self.use_trained_model = use_trained_model
         self.use_neural_net_model = use_neural_net_model
+        self.use_trained_model = use_trained_model
+
+    # def using_trained_model(self):
+    #     self.population = create_new_population(self.num_population, self.input_shape)
+    #     self.model = create_model(self.input_shape)
+    #     self.model.load_params()
+
+    #     self.population[0][2] = self.model.get_weights()
+    #     self.learning_threshold = 100000
+
+    #     self.main()
+    
+    # def new_training_routine(self):
+    #     self.population = create_new_population(self.num_population, self.input_shape)
+    #     self.model = create_model(self.input_shape)
+
+    #     for g in range(self.num_geracoes):
+    #         self.geracao += 1
+    #         self.main()
+    #         self.print_results(self.geracao, self.population)
+    #         self.population = new_generation(self.population, self.input_shape)
+
+    def setup_new_generation(self):
+        self.geracao += 1
+        self.population = new_generation(self.population, self.input_shape)
+    
+    def setup_population(self):
+        self.population = create_new_population(self.num_population, self.input_shape)
+        self.model = create_model(self.input_shape)
+
+        if self.use_trained_model:
+            self.model.load_params()
+            self.population[0][2] = self.model.get_weights()
+            self.learning_threshold = 100000
+            
+    def increase_fitness(self, idx_passaro):
+        fitness = 0.1
+        self.population[idx_passaro][1] += fitness
+    
+    def increse_fitness_passing_cano(self, idx):
+        fitness = 20
+        self.population[idx][1] += fitness
+
+class Game(SetupNeuralNetwork):
+
+    def __init__(self, use_neural_net_model = True, use_trained_model = False) -> None:
+        # Definições gerais do jogo como tamanho da tela e imagens usadas
+        self.tela_altura = 800
+        self.tela_largura = 500
+        super().__init__(use_neural_net_model, use_trained_model)
+
+        if not use_neural_net_model or use_trained_model:
+            self.num_population = 1
+            self.num_geracoes = 1
+        
+        if not use_neural_net_model:
+            self.use_trained_model = None
 
     def init_objects(self):
         self.passaros = [Passaro(230, 350) for p in range(self.num_population)]
@@ -71,10 +122,6 @@ class Game:
 
             if prediction:
                 passaro.pular()
-
-    def increase_fitness(self, idx_passaro):
-        fitness = 0.1
-        self.population[idx_passaro][1] += fitness
     
     def predict_move_with_calc(self, passaro):
         calculo_decisao = ((passaro.y - self.canos[self.indice_cano].pos_base) / self.tela_altura) + ((passaro.y - self.canos[self.indice_cano].altura) / self.tela_altura)
@@ -99,10 +146,6 @@ class Game:
         elif (passaro.y + passaro.imagem.get_height()) > self.chao.y or passaro.y < 0:
             self.passaros.pop(i)
             self.population[i][1] -= 10
-
-    def increse_fitness_passing_cano(self, idx):
-        fitness = 20
-        self.population[idx][1] += fitness
 
     def check_learning_threshold(self, idx):
         if self.population[idx][1] >= self.learning_threshold:
@@ -174,43 +217,21 @@ class Game:
 
         print("\n")
 
-    def using_trained_model(self):
-        self.population = create_new_population(self.num_population, self.input_shape)
-        self.model = create_model(self.input_shape)
-        self.model.load_params()
-
-        self.population[0][2] = self.model.get_weights()
-        self.learning_threshold = 100000
-
-        self.main()
-    
-    def new_training_routine(self):
-        self.population = create_new_population(self.num_population, self.input_shape)
-        self.model = create_model(self.input_shape)
-
-        for g in range(self.num_geracoes):
-            self.geracao += 1
-            self.main()
-            self.print_results(self.geracao, self.population)
-            self.population = new_generation(self.population, self.input_shape)
-
     def init_game(self):
 
-        if not self.use_neural_net_model:
-            print("Using manual calculation")
-            self.num_population = 1
-            self.main()
+        if self.use_neural_net_model:
+            self.setup_population()
         else:
-            if self.use_trained_model:
-                print("Using trained Neural Network")
-                self.num_population = 1
-                self.using_trained_model()
-            else:
-                print("Training a new Neural Network")
-                self.new_training_routine()
+            print("Using manual calculation")
+
+        for g in range(self.num_geracoes):
+            self.main()
+            if not self.use_trained_model:
+                self.print_results(self.geracao, self.population)
+                self.population = new_generation(self.population, self.input_shape)
 
 if __name__ == '__main__':
     use_neural_net_model = True
     use_trained_model = True
-    game_app = Game(use_trained_model, use_neural_net_model)
+    game_app = Game(use_neural_net_model, use_trained_model,)
     game_app.init_game()
