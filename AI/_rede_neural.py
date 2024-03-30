@@ -2,7 +2,7 @@ import numpy as np
 import math
 import os
 
-class Perceptron(object):
+class Perceptron:
 
     def __init__(self, input_shape, output=1):
         self.weights = np.random.randn(input_shape,output)

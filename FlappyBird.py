@@ -225,6 +225,6 @@ class Game(SetupNeuralNetwork):
 
 if __name__ == '__main__':
     use_neural_net_model = True
-    use_trained_model = True
+    use_trained_model = False
     game_app = Game(use_neural_net_model, use_trained_model,)
     game_app.main()
