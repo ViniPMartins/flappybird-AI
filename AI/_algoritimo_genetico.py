@@ -17,43 +17,6 @@ def create_new_population(num_population, input_shape):
                            })
         
     return population
-   
-def crossover(weights_parents_1, weights_parents_2):
-    
-    num_params_1 = len(weights_parents_1)
-    num_params_2 = len(weights_parents_2)
-    verification = num_params_1 == num_params_2
-    assert verification, f"A quantidade de parametros não é igual. O modelo 1 tem {num_params_1} e o modelo 2 tem {num_params_2}"
-
-    offspring_1 = []
-
-    for i in range(num_params_1):
-        parent_1 = weights_parents_1[i]
-        parent_2 = weights_parents_2[i]
-
-        mask = np.random.randint(0, 2, parent_1.shape)
-
-        offspring_1.append((parent_1*mask) + (parent_2*(1-mask)))
-
-    return offspring_1
-
-def mutation(weights, mutation_rate = 0.1, mutation_intensity=0.5):
-    for i in range(len(weights)):
-
-        if len(weights[i].shape) == 1:
-            for j in range(weights[i].shape[0]):
-                if np.random.random() <= mutation_rate:
-                    new_bias = np.random.random()*mutation_intensity
-                    weights[i][j] += new_bias
-
-        else:
-            for j in range(weights[i].shape[0]):
-                for k in range(weights[i].shape[1]):
-                    if np.random.random() <= mutation_rate:
-                        new_bias = np.random.random()*mutation_intensity
-                        weights[i][j][k] += new_bias
-                        
-    return weights
 
 def reset_scores(population):
 
@@ -96,9 +59,44 @@ def make_survivors(population, elitism, survival_threshold, crossover_rate, muta
 
     return survivors
 
-def make_new_individuos(input_shape, n_population, n_parents, n_survivors):
+def crossover(weights_parents_1, weights_parents_2):
+    
+    num_params_1 = len(weights_parents_1)
+    num_params_2 = len(weights_parents_2)
+    verification = num_params_1 == num_params_2
+    assert verification, f"A quantidade de parametros não é igual. O modelo 1 tem {num_params_1} e o modelo 2 tem {num_params_2}"
 
-    n_new_individuos = n_population - n_parents - n_survivors
+    offspring_1 = []
+
+    for i in range(num_params_1):
+        parent_1 = weights_parents_1[i]
+        parent_2 = weights_parents_2[i]
+
+        mask = np.random.randint(0, 2, parent_1.shape)
+
+        offspring_1.append((parent_1*mask) + (parent_2*(1-mask)))
+
+    return offspring_1
+
+def mutation(weights, mutation_rate = 0.1, mutation_intensity=0.5):
+    for i in range(len(weights)):
+
+        if len(weights[i].shape) == 1:
+            for j in range(weights[i].shape[0]):
+                if np.random.random() <= mutation_rate:
+                    new_bias = np.random.random()*mutation_intensity
+                    weights[i][j] += new_bias
+
+        else:
+            for j in range(weights[i].shape[0]):
+                for k in range(weights[i].shape[1]):
+                    if np.random.random() <= mutation_rate:
+                        new_bias = np.random.random()*mutation_intensity
+                        weights[i][j][k] += new_bias
+                        
+    return weights
+
+def make_new_individuos(input_shape, n_new_individuos):
 
     new_individuos = create_new_population(n_new_individuos, input_shape)
     return new_individuos
@@ -116,7 +114,8 @@ def new_generation(population, input_shape, elitism=2, survival_threshold=0.2, c
     n_population = len(population)
     n_parents = len(parents)
     n_survivors = len(survivors)
-    new_individuos = make_new_individuos(input_shape, n_population, n_parents, n_survivors)
+    n_new_individuos = n_population - n_parents - n_survivors
+    new_individuos = make_new_individuos(input_shape, n_new_individuos)
     
     new_generation = parents + survivors + new_individuos
 
