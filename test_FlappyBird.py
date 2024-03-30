@@ -60,7 +60,7 @@ def test_init_with_manual_calculus():
     assert newGame.use_trained_model == None
 
 def test_init_game(mocker):
-    mockPopulation = [[999, 999, 999, 999]]
+    mockPopulation = [{'idx':999, 'initial_score':999, 'weights':999, 'age':999}]
     mocker.patch('FlappyBird.Game.setup_population', return_value="setup_population")
     mocker.patch('FlappyBird.Game.main', return_value=True)
     mocker.patch('FlappyBird.Game.print_results', return_value=True)
@@ -73,15 +73,15 @@ def test_init_game(mocker):
     assert newGame.use_trained_model == True
 
 def test_increase_fitness():
-    mockPopulation = [[999, 0, 999, 999]]
+    mockPopulation = [{'idx':999, 'initial_score':0, 'weights':999, 'age':999}]
     newGame = Game()
     newGame.population = mockPopulation
     newGame.increase_fitness(0)
-    assert newGame.population == [[999,0.1,999,999]]
+    assert newGame.population == [{'idx':999, 'initial_score':0.1, 'weights':999, 'age':999}]
 
 def test_increse_fitness_passing_cano():
-    mockPopulation = [[999, 0, 999, 999]]
+    mockPopulation = [{'idx':999, 'initial_score':0, 'weights':999, 'age':999}]
     newGame = Game()
     newGame.population = mockPopulation
     newGame.increse_fitness_passing_cano(0)
-    assert newGame.population == [[999,20,999,999]]
+    assert newGame.population == [{'idx':999, 'initial_score':20, 'weights':999, 'age':999}]

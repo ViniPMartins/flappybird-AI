@@ -10,7 +10,11 @@ def create_new_population(num_population, input_shape):
         weights = create_weights(input_shape)
         initial_score = 0
         age = 0
-        population.append([i, initial_score, weights, age])
+        population.append({'idx':i,
+                           'initial_score':initial_score, 
+                           'weights':weights, 
+                           'age':age
+                           })
         
     return population
    
@@ -54,9 +58,9 @@ def mutation(weights, mutation_rate = 0.1, mutation_intensity=0.5):
 def reset_scores(population):
 
     for i in range(len(population)):
-        population[i][0] = i
-        population[i][1] = 0
-        population[i][3] += 1
+        population[i]['idx'] = i
+        population[i]['initial_score'] = 0
+        population[i]['age'] += 1
 
     return population
 
@@ -77,18 +81,18 @@ def make_survivors(population, elitism, survival_threshold, crossover_rate, muta
     survivors = deepcopy(population[:n_survival])
     for i in range(n_survival):
 
-        weights_individuo = survivors[i][2]
+        weights_individuo = survivors[i]['weights']
 
         if np.random.random() <= crossover_rate and n_survival > 1:
             idx1 = 0
             idx2 = np.random.randint(1, elitism)
-            weights_1 = survivors[idx1][2]
-            weights_2 = survivors[idx2][2]
+            weights_1 = survivors[idx1]['weights']
+            weights_2 = survivors[idx2]['weights']
 
             weights_individuo = crossover(weights_1, weights_2)
         
-        survivors[i][2] = mutation(weights_individuo, mutation_rate)
-        survivors[i][3] = 0
+        survivors[i]['weights'] = mutation(weights_individuo, mutation_rate)
+        survivors[i]['age'] = 0
 
     return survivors
 
@@ -101,7 +105,7 @@ def make_new_individuos(input_shape, n_population, n_parents, n_survivors):
 
 def new_generation(population, input_shape, elitism=2, survival_threshold=0.2, crossover_rate=0.5, mutation_rate=0.1):
 
-    population_sorted = sorted(population, key=lambda column: column[1], reverse=True)
+    population_sorted = sorted(population, key=lambda column: column['initial_score'], reverse=True)
 
     #print(population_sorted[:2], '\n')
 
